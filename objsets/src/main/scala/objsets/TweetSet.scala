@@ -104,6 +104,8 @@ abstract class TweetSet {
     * This method takes a function and applies it to every element in the set.
     */
   def foreach(f: Tweet => Unit): Unit
+
+  def isEmpty: Boolean
 }
 
 class Empty extends TweetSet {
@@ -112,6 +114,8 @@ class Empty extends TweetSet {
   def mostRetweeted: Tweet = throw new java.util.NoSuchElementException
 
   def descendingByRetweet: TweetList = Nil
+
+  def isEmpty = true
 
   /**
     * The following methods are already implemented
@@ -132,10 +136,24 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     if (p(elem)) left.filterAcc(p, right.filterAcc(p, acc.incl(elem)))
     else left.filterAcc(p, left.filterAcc(p, right.filterAcc(p, acc)))
 
+  def isEmpty = false
+
   def mostRetweeted: Tweet = {
-    var most = elem
-    left.union(right).foreach(t => if (t.retweets > most.retweets) most = t)
-    most
+    lazy val leftMostRetweeted = left.mostRetweeted
+    lazy val rightMostRetweeted = right.mostRetweeted
+    lazy val mostRetweeted = left.union(right).mostRetweeted
+    if (left.isEmpty && right.isEmpty) {
+      elem
+    }
+    else if (left.isEmpty) {
+      if (elem.retweets > rightMostRetweeted.retweets) elem else rightMostRetweeted
+    }
+    else if (right.isEmpty) {
+      if (elem.retweets > leftMostRetweeted.retweets) elem else leftMostRetweeted
+    }
+    else {
+      if (elem.retweets > mostRetweeted.retweets) elem else mostRetweeted
+    }
   }
 
   def descendingByRetweet: TweetList = {
