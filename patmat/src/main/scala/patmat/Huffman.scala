@@ -77,16 +77,21 @@ object Huffman {
     * }
     */
   def times(chars: List[Char]): List[(Char, Int)] = {
-    def iter(chars: List[Char], pairs: List[(Char, Int)]): List[(Char, Int)] =
-      if (chars.isEmpty) pairs
-      else iter(chars.tail, add(pairs, chars.head))
+    def iter(chars: List[Char], pairs: List[(Char, Int)]): List[(Char, Int)] = chars match {
+      case List() => pairs
+      case x :: xs => iter(xs, add(pairs, x))
+    }
     iter(chars, List())
   }
 
-  def add(pairs: List[(Char, Int)], char: Char): List[(Char, Int)] = {
-    if (pairs.isEmpty) List((char, 1))
-    else if (pairs.head._1 == char) (char, pairs.head._2 + 1) :: pairs.tail
-    else pairs.head :: add(pairs.tail, char)
+  def add(pairs: List[(Char, Int)], char: Char): List[(Char, Int)] = pairs match {
+    case List() => List((char, 1))
+    case x :: xs =>
+      x match {
+        case (xChar, xInt) =>
+          if (xChar == char) (char, xInt + 1) :: xs
+          else x :: add(xs, char)
+      }
   }
 
   /**
