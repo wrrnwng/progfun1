@@ -4,5 +4,5 @@ object Patmat {
     case y :: ys => if (x <= y) x :: xs else y :: insert(x, ys)
   }
 
-  val list = insert(3, List(1, 2, 4, 5))
+  val list: List[Int] = insert(3, List(1, 2, 4, 5))
 }
