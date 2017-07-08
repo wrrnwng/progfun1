@@ -76,7 +76,18 @@ object Huffman {
     * println("integer is  : "+ theInt)
     * }
     */
-  def times(chars: List[Char]): List[(Char, Int)] = ???
+  def times(chars: List[Char]): List[(Char, Int)] = {
+    def iter(chars: List[Char], pairs: List[(Char, Int)]): List[(Char, Int)] =
+      if (chars.isEmpty) pairs
+      else iter(chars.tail, add(pairs, chars.head))
+    iter(chars, List())
+  }
+
+  def add(pairs: List[(Char, Int)], char: Char): List[(Char, Int)] = {
+    if (pairs.isEmpty) List((char, 1))
+    else if (pairs.head._1 == char) (char, pairs.head._2 + 1) :: pairs.tail
+    else pairs.head :: add(pairs.tail, char)
+  }
 
   /**
     * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
@@ -205,4 +216,9 @@ object Huffman {
     * and then uses it to perform the actual encoding.
     */
   def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+}
+
+object Main extends App {
+  val times = Huffman.times(List('a', 'b', 'a', 'c', 'd', 'a', 'b', 'a'))
+  println(times)
 }
