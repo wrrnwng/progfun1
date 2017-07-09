@@ -105,21 +105,18 @@ object Huffman {
     def iter(freqs: List[(Char, Int)], leaves: List[Leaf]): List[Leaf] = freqs match {
         case List() => leaves
         case x :: xs => x match {
-          case (c, w) => iter(xs, orderLeaves(leaves, Leaf(c, w)))
+          case (c, w) => iter(xs, orderTrees(leaves, Leaf(c, w)))
         }
     }
     iter(freqs, List())
   }
 
-  def orderLeaves(leaves: List[Leaf], leaf: Leaf): List[Leaf] = {
-    leaves match {
-      case List() => List(leaf)
+  def orderTrees[T <: CodeTree](trees: List[T], tree: T): List[T] = {
+    trees match {
+      case List() => List(tree)
       case x :: xs => {
-        x match {
-          case Leaf(c, w) =>
-            if (leaf.weight > w) x :: orderLeaves(xs, leaf)
-            else leaf :: leaves
-        }
+        if (weight(tree) > weight(x)) x :: orderTrees(xs, tree)
+        else tree :: trees
       }
     }
   }
@@ -127,7 +124,13 @@ object Huffman {
   /**
     * Checks whether the list `trees` contains only one single code tree.
     */
-  def singleton(trees: List[CodeTree]): Boolean = ???
+  def singleton(trees: List[CodeTree]): Boolean = trees match {
+    case List() => false
+    case x :: xs => xs match {
+      case List() => true
+      case _ => false
+    }
+  }
 
   /**
     * The parameter `trees` of this function is a list of code trees ordered
@@ -141,7 +144,11 @@ object Huffman {
     * If `trees` is a list of less than two elements, that list should be returned
     * unchanged.
     */
-  def combine(trees: List[CodeTree]): List[CodeTree] = ???
+  def combine(trees: List[CodeTree]): List[CodeTree] =
+    trees match {
+      case left :: right :: xs => orderTrees(xs, makeCodeTree(left, right))
+      case List(_) => trees
+    }
 
   /**
     * This function will be called in the following way:
