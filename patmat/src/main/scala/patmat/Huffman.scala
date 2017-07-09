@@ -101,7 +101,28 @@ object Huffman {
     * head of the list should have the smallest weight), where the weight
     * of a leaf is the frequency of the character.
     */
-  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = ???
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
+    def iter(freqs: List[(Char, Int)], leaves: List[Leaf]): List[Leaf] = freqs match {
+        case List() => leaves
+        case x :: xs => x match {
+          case (c, w) => iter(xs, orderLeaves(leaves, Leaf(c, w)))
+        }
+    }
+    iter(freqs, List())
+  }
+
+  def orderLeaves(leaves: List[Leaf], leaf: Leaf): List[Leaf] = {
+    leaves match {
+      case List() => List(leaf)
+      case x :: xs => {
+        x match {
+          case Leaf(c, w) =>
+            if (leaf.weight > w) x :: orderLeaves(xs, leaf)
+            else leaf :: leaves
+        }
+      }
+    }
+  }
 
   /**
     * Checks whether the list `trees` contains only one single code tree.
@@ -225,5 +246,7 @@ object Huffman {
 
 object Main extends App {
   val times = Huffman.times(List('a', 'b', 'a', 'c', 'd', 'a', 'b', 'a'))
-  println(times)
+
+  val leaves = Huffman.makeOrderedLeafList(List(('t', 2), ('e', 1), ('x', 3)))
+  println(leaves)
 }
