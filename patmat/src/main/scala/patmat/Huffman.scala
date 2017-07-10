@@ -192,7 +192,29 @@ object Huffman {
     * This function decodes the bit sequence `bits` using the code tree `tree` and returns
     * the resulting list of characters.
     */
-  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = ???
+  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
+
+    @annotation.tailrec
+    def traverse(subTree: CodeTree, bits: List[Bit]): List[Char] = {
+      bits match {
+        case List() => subTree match {
+          case Leaf(c, _) => List(c)
+        }
+        case head :: tail => {
+          subTree match {
+            case Leaf(c, _) => c :: decode(tree, bits)
+            case Fork(l, r, _, _) =>
+              if (head == 0) traverse(l, tail)
+              else traverse(r, tail)
+          }
+        }
+      }
+    }
+    bits match {
+      case List() => List()
+      case x :: xs => traverse(tree, bits)
+    }
+  }
 
   /**
     * A Huffman coding tree for the French language.
@@ -210,7 +232,7 @@ object Huffman {
   /**
     * Write a function that returns the decoded secret
     */
-  def decodedSecret: List[Char] = ???
+  def decodedSecret: List[Char] = decode(frenchCode, secret)
 
 
   // Part 4a: Encoding using Huffman tree
@@ -258,8 +280,10 @@ object Huffman {
 }
 
 object Main extends App {
-  val times = Huffman.times(List('a', 'b', 'a', 'c', 'd', 'a', 'b', 'a'))
+  import Huffman._
 
-  val leaves = Huffman.makeOrderedLeafList(List(('t', 2), ('e', 1), ('x', 3)))
-  println(leaves)
+  val t2 = Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Leaf('d', 4), List('a', 'b', 'd'), 9)
+  val decoded = decode(t2, List(0, 0, 0, 1, 1))
+//  println(decoded)
+  println(decodedSecret)
 }
