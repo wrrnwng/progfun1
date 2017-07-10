@@ -77,6 +77,8 @@ object Huffman {
     * }
     */
   def times(chars: List[Char]): List[(Char, Int)] = {
+
+    @annotation.tailrec
     def iter(chars: List[Char], pairs: List[(Char, Int)]): List[(Char, Int)] = chars match {
       case List() => pairs
       case x :: xs => iter(xs, add(pairs, x))
@@ -102,6 +104,8 @@ object Huffman {
     * of a leaf is the frequency of the character.
     */
   def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
+
+    @annotation.tailrec
     def iter(freqs: List[(Char, Int)], leaves: List[Leaf]): List[Leaf] = freqs match {
         case List() => leaves
         case x :: xs => x match {
@@ -115,8 +119,8 @@ object Huffman {
     trees match {
       case List() => List(tree)
       case x :: xs => {
-        if (weight(tree) > weight(x)) x :: orderTrees(xs, tree)
-        else tree :: trees
+        if (weight(tree) <= weight(x)) tree :: trees
+        else x :: orderTrees(xs, tree)
       }
     }
   }
@@ -167,7 +171,9 @@ object Huffman {
     * the example invocation. Also define the return type of the `until` function.
     *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
     */
-  def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  def until(f: (List[CodeTree]) => Boolean, g: (List[CodeTree]) => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] =
+    if (f(trees)) trees
+    else until(f, g)(g(trees))
 
   /**
     * This function creates a code tree which is optimal to encode the text `chars`.
@@ -175,7 +181,7 @@ object Huffman {
     * The parameter `chars` is an arbitrary text. This function extracts the character
     * frequencies from that text and creates a code tree based on them.
     */
-  def createCodeTree(chars: List[Char]): CodeTree = ???
+  def createCodeTree(chars: List[Char]): CodeTree = until(singleton, combine)(makeOrderedLeafList(times(chars))).head
 
 
   // Part 3: Decoding
