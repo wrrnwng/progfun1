@@ -23,4 +23,7 @@ object higherOrder {
   def encode[T](xs: List[T]): List[(T, Int)] = pack(xs) map(x => (x.head, x.length))
 
   val encoded = encode(letters)
+
+  def concat[T](xs: List[T], ys: List[T]): List[T] = (xs foldRight  ys)(_ :: _)
+  val twoLists = concat(letters, letters.reverse)
 }
