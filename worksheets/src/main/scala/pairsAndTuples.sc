@@ -3,14 +3,12 @@ object pairsAndTuples {
     val n = xs.length / 2
     if (n == 0) xs
     else {
-      def merge(xs: List[Int], ys: List[Int]): List[Int] = xs match {
-        case List() => ys
-        case xHead :: xTail => ys match {
-          case List() => xs
-          case yHead :: yTail =>
-            if (xHead < yHead) xHead :: merge(xTail, ys)
-            else yHead :: merge(xs, yTail)
-        }
+      def merge(xs: List[Int], ys: List[Int]): List[Int] = (xs, ys) match {
+        case (List(), _) => ys
+        case (_, List()) => xs
+        case (xHead :: xTail, yHead :: yTail) =>
+          if (xHead < yHead) xHead :: merge(xTail, ys)
+          else yHead :: merge(xs, yTail)
       }
       val (first, second) = xs splitAt(n)
       merge(mergeSort(first), mergeSort(second))
