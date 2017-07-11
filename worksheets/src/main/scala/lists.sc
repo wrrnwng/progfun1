@@ -1,4 +1,4 @@
-object week5 {
+object lists {
   def init[T](xs: List[T]): List[T] = xs match {
     case List() => throw new Error("init of empty list")
     case List(x) => List()
