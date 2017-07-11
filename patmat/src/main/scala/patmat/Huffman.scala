@@ -150,8 +150,9 @@ object Huffman {
     */
   def combine(trees: List[CodeTree]): List[CodeTree] =
     trees match {
-      case left :: right :: xs => orderTrees(xs, makeCodeTree(left, right))
+      case List() => List()
       case List(_) => trees
+      case left :: right :: xs => orderTrees(xs, makeCodeTree(left, right))
     }
 
   /**
@@ -281,14 +282,24 @@ object Huffman {
     * a valid code tree that can be represented as a code table. Using the code tables of the
     * sub-trees, think of how to build the code table for the entire tree.
     */
-  def convert(tree: CodeTree): CodeTable = ???
+  def convert(tree: CodeTree): CodeTable = {
+    def traverse(tree: CodeTree, bits: List[Bit]): CodeTable = {
+      tree match {
+        case Leaf(c, _) => List((c, bits.reverse))
+        case Fork(l, r, cs, _) => mergeCodeTables(traverse(l, 0 :: bits), traverse(r, 1 :: bits))
+      }
+    }
+    traverse(tree, List())
+  }
 
   /**
     * This function takes two code tables and merges them into one. Depending on how you
     * use it in the `convert` method above, this merge method might also do some transformations
     * on the two parameter code tables.
     */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = {
+    a ::: b
+  }
 
   /**
     * This function encodes `text` according to the code tree `tree`.
@@ -296,16 +307,41 @@ object Huffman {
     * To speed up the encoding process, it first converts the code tree to a code table
     * and then uses it to perform the actual encoding.
     */
-  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    val table = convert(tree)
+
+    def iter(text: List[Char]): List[Bit] = text match {
+      case List() => List()
+      case x :: xs => codeBits(table)(x) ::: iter(xs)
+    }
+
+    iter(text)
+  }
 }
 
 object Main extends App {
+
   import Huffman._
+
+  def time[R](block: => R, label: String): R = {
+    val t0 = System.nanoTime()
+    val result = block
+    val t1 = System.nanoTime()
+    println(s"$label elapsed time: ${t1 - t0}ns")
+    result
+  }
 
 //  val t2 = Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Leaf('d', 4), List('a', 'b', 'd'), 9)
 //  val decoded = decode(t2, List(0, 0, 0, 1, 1))
 //  println(decoded)
 //  println(decodedSecret)
-  val encoded = encode(frenchCode)(List('h', 'u', 'f', 'f', 'm', 'a', 'n', 'e', 's', 't', 'c', 'o', 'o', 'l'))
-  println(secret == encoded)
+  val encoded1 = time(encode(frenchCode)(List('h', 'u', 'f', 'f', 'm', 'a', 'n', 'e', 's', 't', 'c', 'o', 'o', 'l')), "encode")
+  val encoded2 = time(quickEncode(frenchCode)(List('h', 'u', 'f', 'f', 'm', 'a', 'n', 'e', 's', 't', 'c', 'o', 'o', 'l')), "quickEncode")
+
+  println(encoded1 == encoded2)
+
+
+//  val tree = createCodeTree(List('a', 'b', 'c', 'd', 'a', 'a', 'b', 'a', 'd', 'b'))
+//  val table = convert(tree)
+//  println(s"table $table")
 }
