@@ -46,6 +46,13 @@ class AnagramsSuite extends FunSuite  {
     assert(subtract(lard, r) === lad)
   }
 
+  test("subtract: butter - t") {
+    val butter = List(('b', 1), ('e', 1), ('r', 1), ('t', 2), ('u', 1))
+    val tu = List(('t', 1), ('u', 1))
+    val bert = List(('b', 1), ('e', 1), ('r', 1), ('t', 1))
+    assert(subtract(butter, tu) === bert)
+  }
+
 
   test("combinations: []") {
     assert(combinations(Nil) === List(Nil))
